@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,11 +23,7 @@ func CreateRole(c *fiber.Ctx) error {
 		return err
 	}
 
-	fmt.Println(roleDto)
-
 	list := roleDto["permissions"].([]interface{})
-
-	fmt.Println(list)
 
 	if len(list) == 0 {
 		c.Status(400)
@@ -72,12 +67,31 @@ func GetRole(c *fiber.Ctx) error {
 func UpdateRole(c *fiber.Ctx) error {
 	id, _ := strconv.Atoi(c.Params("id"))
 
-	role := models.Role{
-		Id: uint(id),
+	var roleDto fiber.Map
+
+	if err := c.BodyParser(&roleDto); err != nil {
+		return err
 	}
 
-	if err := c.BodyParser(&role); err != nil {
-		return err
+	list := roleDto["permissions"].([]interface{})
+
+	permissions := make([]models.Permission, len(list))
+
+	for i, permisssionId := range list {
+		permId, _ := strconv.Atoi(permisssionId.(string))
+
+		permissions[i] = models.Permission{
+			Id: uint(permId),
+		}
+	}
+
+	var result fiber.Map
+	database.DB.Table("role_permissions").Delete(&result, "role_id = ?", id)
+
+	role := models.Role{
+		Id:          uint(id),
+		Name:        roleDto["name"].(string),
+		Permissions: permissions,
 	}
 
 	database.DB.Model(&role).Updates(role)
