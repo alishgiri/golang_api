@@ -59,7 +59,7 @@ func GetRole(c *fiber.Ctx) error {
 		Id: uint(id),
 	}
 
-	database.DB.Find(&role)
+	database.DB.Preload("Permissions").Find(&role)
 
 	return c.JSON(role)
 }
@@ -87,6 +87,8 @@ func UpdateRole(c *fiber.Ctx) error {
 
 	var result fiber.Map
 	database.DB.Table("role_permissions").Delete(&result, "role_id = ?", id)
+	// Or use below code
+	// database.DB.Table("role_permissions").Where("role_id", id).Delete(&result)
 
 	role := models.Role{
 		Id:          uint(id),
