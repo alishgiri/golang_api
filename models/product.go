@@ -12,7 +12,7 @@ type Product struct {
 
 func (p *Product) Count(db *gorm.DB) int64 {
 	var total int64
-	db.Model(&Product{}).Count(&total)
+	db.Model(p).Count(&total)
 	return total
 }
 

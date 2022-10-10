@@ -26,7 +26,7 @@ func (u *User) ComparePassword(password string) error {
 
 func (u *User) Count(db *gorm.DB) int64 {
 	var total int64
-	db.Model(&User{}).Count(&total)
+	db.Model(u).Count(&total)
 	return total
 }
 
